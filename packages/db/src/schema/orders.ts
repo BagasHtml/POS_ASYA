@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, enum, timestamp, index, foreignKey, text } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, varchar, mysqlEnum, timestamp, index, foreignKey, text } from 'drizzle-orm/mysql-core';
 import { users } from './users';
 
 export const orders = mysqlTable(
@@ -9,10 +9,10 @@ export const orders = mysqlTable(
     userId: int('user_id').notNull(),
     customerName: varchar('customer_name', { length: 100 }),
     total: int('total').notNull(),
-    paymentMethod: enum('payment_method', ['cash', 'qris', 'transfer', 'card']).default('cash').notNull(),
+    paymentMethod: mysqlEnum('payment_method', ['cash', 'qris', 'transfer', 'card']).default('cash').notNull(),
     amountPaid: int('amount_paid').default(0).notNull(),
     changeAmount: int('change_amount').default(0).notNull(),
-    status: enum('status', ['pending', 'completed', 'cancelled']).default('completed').notNull(),
+    status: mysqlEnum('status', ['pending', 'completed', 'cancelled']).default('completed').notNull(),
     notes: text('notes'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
