@@ -44,7 +44,7 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
           role: role || 'user',
           status: 'active',
         })
-        .$returningId();
+        .returning({ id: users.id });
 
       const userId = user.id;
 

@@ -1,16 +1,17 @@
-import { mysqlTable, int, varchar, json, timestamp, index, foreignKey } from 'drizzle-orm/mysql-core';
+import { foreignKey, index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { users } from './users';
+import { timestamps } from './common';
 
-export const activityLogs = mysqlTable(
+export const activityLogs = sqliteTable(
   'activity_logs',
   {
-    id: int('id').primaryKey().autoincrement(),
-    userId: int('user_id'),
-    action: varchar('action', { length: 50 }).notNull(),
-    entityType: varchar('entity_type', { length: 50 }).notNull(),
-    entityId: varchar('entity_id', { length: 100 }).notNull(),
-    meta: json('meta'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id'),
+    action: text('action').notNull(),
+    entityType: text('entity_type').notNull(),
+    entityId: text('entity_id').notNull(),
+    meta: text('meta', { mode: 'json' }),
+    ...timestamps,
   },
   (table) => ({
     userFk: foreignKey({

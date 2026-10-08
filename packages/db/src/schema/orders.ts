@@ -1,21 +1,21 @@
-import { mysqlTable, int, varchar, mysqlEnum, timestamp, index, foreignKey, text } from 'drizzle-orm/mysql-core';
+import { foreignKey, index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { users } from './users';
+import { timestamps } from './common';
 
-export const orders = mysqlTable(
+export const orders = sqliteTable(
   'orders',
   {
-    id: int('id').primaryKey().autoincrement(),
-    invoiceNo: varchar('invoice_no', { length: 50 }).notNull().unique(),
-    userId: int('user_id').notNull(),
-    customerName: varchar('customer_name', { length: 100 }),
-    total: int('total').notNull(),
-    paymentMethod: mysqlEnum('payment_method', ['cash', 'qris', 'transfer', 'card']).default('cash').notNull(),
-    amountPaid: int('amount_paid').default(0).notNull(),
-    changeAmount: int('change_amount').default(0).notNull(),
-    status: mysqlEnum('status', ['pending', 'completed', 'cancelled']).default('completed').notNull(),
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    invoiceNo: text('invoice_no').notNull().unique(),
+    userId: integer('user_id').notNull(),
+    customerName: text('customer_name'),
+    total: integer('total').notNull(),
+    paymentMethod: text('payment_method', { enum: ['cash', 'qris', 'transfer', 'card'] }).notNull().default('cash'),
+    amountPaid: integer('amount_paid').notNull().default(0),
+    changeAmount: integer('change_amount').notNull().default(0),
+    status: text('status', { enum: ['pending', 'completed', 'cancelled'] }).notNull().default('completed'),
     notes: text('notes'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+    ...timestamps,
   },
   (table) => ({
     invoiceIdx: index('invoice_idx').on(table.invoiceNo),

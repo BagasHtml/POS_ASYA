@@ -1,4 +1,9 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const rootEnvPath = join(dirname(fileURLToPath(import.meta.url)), '../../../.env');
+config({ path: rootEnvPath, quiet: true });
 
 export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',

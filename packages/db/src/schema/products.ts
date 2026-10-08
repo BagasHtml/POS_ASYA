@@ -1,19 +1,19 @@
-import { mysqlTable, int, varchar, decimal, tinyint, timestamp, index, foreignKey } from 'drizzle-orm/mysql-core';
+import { foreignKey, index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { categories } from './categories';
+import { timestamps } from './common';
 
-export const products = mysqlTable(
+export const products = sqliteTable(
   'products',
   {
-    id: int('id').primaryKey().autoincrement(),
-    name: varchar('name', { length: 150 }).notNull(),
-    sku: varchar('sku', { length: 50 }).notNull().unique(),
-    categoryId: int('category_id'),
-    price: int('price').notNull(),
-    imageUrl: varchar('image_url', { length: 255 }),
-    isActive: tinyint('is_active').default(1).notNull(),
-    isDeleted: tinyint('is_deleted').default(0).notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    name: text('name').notNull(),
+    sku: text('sku').notNull().unique(),
+    categoryId: integer('category_id'),
+    price: integer('price').notNull(),
+    imageUrl: text('image_url'),
+    isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+    isDeleted: integer('is_deleted', { mode: 'boolean' }).notNull().default(false),
+    ...timestamps,
   },
   (table) => ({
     categoryFk: foreignKey({

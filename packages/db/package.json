@@ -8,17 +8,21 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "seed": "bun run ./src/seed.ts"
+    "seed": "bun run ./src/seed.ts",
+    "drizzle:generate": "drizzle-kit generate",
+    "drizzle:push": "drizzle-kit push",
+    "drizzle:migrate": "drizzle-kit migrate",
+    "drizzle:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@asya-pos/config": "workspace:*",
     "@asya-pos/types": "workspace:*",
     "argon2": "^0.41.1",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.36.4",
-    "mysql2": "^3.11.5"
+    "drizzle-orm": "^0.36.4"
   },
   "devDependencies": {
+    "@libsql/client": "^0.18.0",
     "drizzle-kit": "^0.28.1"
   }
 }
