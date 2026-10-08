@@ -7,8 +7,30 @@
   html {
     font-family: var(--font-sans);
     line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-white text-gray-900;
+  }
+  *:focus-visible {
+    @apply outline-none ring-2 ring-blue-600 ring-offset-2;
+  }
+  ::placeholder {
+    color: #6b7280;
+  }
+}
+
+@layer components {
+  .form-input {
+    @apply w-full rounded-md border border-gray-500 bg-white px-3 py-2 text-base text-gray-900;
+  }
+  .field-label {
+    @apply block text-sm font-medium text-gray-900;
+  }
+  .alert-error {
+    @apply rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700;
+  }
+  .alert-success {
+    @apply rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800;
   }
 }

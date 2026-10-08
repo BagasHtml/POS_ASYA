@@ -1,6 +1,4 @@
-import { Elysia, t } from 'elysia';
-import { cookie } from '@elysiajs/cookie';
-import { jwt } from '@elysiajs/jwt';
+import { Elysia } from 'elysia';
 import { db } from '@asya-pos/db';
 import { users } from '@asya-pos/db';
 import { eq } from 'drizzle-orm';
@@ -8,30 +6,32 @@ import { loginSchema, registerSchema } from '@asya-pos/types';
 import { hashPassword, verifyPassword } from '../utils/auth';
 import { env } from '../env';
 import { logActivity } from '../services/log.service';
+import { fail, ok } from '../utils/response';
+import { authGuard } from '../middlewares/auth';
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+  path: '/',
+};
 
 export const authRoutes = new Elysia({ prefix: '/auth' })
-  .use(cookie())
-  .use(
-    jwt({
-      name: 'jwt',
-      secret: env.JWT_SECRET,
-      exp: env.JWT_EXPIRES_IN,
-    })
-  )
+  .use(authGuard)
   .post(
     '/register',
-    async ({ body, set, jwt, setCookie }) => {
+    async ({ body, set, jwt, cookie }) => {
       const parsed = registerSchema.safeParse(body);
       if (!parsed.success) {
         set.status = 400;
-        return { success: false, message: parsed.error.issues[0]?.message };
+        return fail(parsed.error.issues[0]?.message ?? 'Data tidak valid');
       }
-      const { name, email, password, role } = parsed.data;
+      const { name, email, password } = parsed.data;
 
       const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
       if (existing.length > 0) {
         set.status = 409;
-        return { success: false, message: 'Email sudah terdaftar' };
+        return fail('Email sudah terdaftar');
       }
 
       const passwordHash = await hashPassword(password);
@@ -41,57 +41,50 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
           name,
           email,
           passwordHash,
-          role: role || 'user',
+          role: 'user',
           status: 'active',
         })
         .returning({ id: users.id });
 
-      const userId = user.id;
+      const token = await jwt.sign({ id: user.id, email, role: 'user', name });
+      cookie.auth.set({ ...cookieOptions, value: token });
 
-      const token = await jwt.sign({ id: userId, email, role: role || 'user', name });
-      setCookie('auth', token, {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-      });
-
-      await logActivity({
-        userId,
+      void logActivity({
+        userId: user.id,
         action: 'register',
         entityType: 'user',
-        entityId: String(userId),
+        entityId: String(user.id),
         meta: { email },
       });
 
-      return { success: true, message: 'Registrasi berhasil' };
+      return ok('Registrasi berhasil', { role: 'user' });
     },
     { body: registerSchema }
   )
   .post(
     '/login',
-    async ({ body, set, jwt, setCookie }) => {
+    async ({ body, set, jwt, cookie }) => {
       const parsed = loginSchema.safeParse(body);
       if (!parsed.success) {
         set.status = 400;
-        return { success: false, message: parsed.error.issues[0]?.message };
+        return fail(parsed.error.issues[0]?.message ?? 'Data tidak valid');
       }
       const { email, password } = parsed.data;
 
       const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
       if (!user) {
         set.status = 401;
-        return { success: false, message: 'Email atau password salah' };
+        return fail('Email atau password salah');
       }
       if (user.status !== 'active') {
         set.status = 403;
-        return { success: false, message: 'Akun tidak aktif' };
+        return fail('Akun tidak aktif. Hubungi administrator.');
       }
 
       const valid = await verifyPassword(user.passwordHash, password);
       if (!valid) {
         set.status = 401;
-        return { success: false, message: 'Email atau password salah' };
+        return fail('Email atau password salah');
       }
 
       const token = await jwt.sign({
@@ -100,14 +93,9 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
         role: user.role,
         name: user.name,
       });
-      setCookie('auth', token, {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-      });
+      cookie.auth.set({ ...cookieOptions, value: token });
 
-      await logActivity({
+      void logActivity({
         userId: user.id,
         action: 'login',
         entityType: 'user',
@@ -115,32 +103,29 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
         meta: { email },
       });
 
-      return { success: true, message: 'Login berhasil', data: { role: user.role } };
+      return ok('Login berhasil', { role: user.role });
     },
     { body: loginSchema }
   )
-  .post('/logout', ({ removeCookie }) => {
-    removeCookie('auth', { path: '/' });
-    return { success: true, message: 'Logout berhasil' };
+  .post('/logout', ({ cookie }) => {
+    cookie.auth.remove();
+    return ok('Logout berhasil');
   })
-  .get('/me', async ({ cookie, jwt, set }) => {
-    const token = cookie.auth;
-    if (!token) {
+  .get('/me', async ({ user, set }) => {
+    if (!user) {
       set.status = 401;
-      return { success: false, message: 'Unauthorized' };
+      return fail('Sesi berakhir. Silakan masuk kembali.');
     }
-    const payload: any = await jwt.verify(token);
-    if (!payload) {
+    const [current] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+    if (!current || current.status !== 'active') {
       set.status = 401;
-      return { success: false, message: 'Unauthorized' };
+      return fail('Sesi berakhir. Silakan masuk kembali.');
     }
-    const [user] = await db.select().from(users).where(eq(users.id, payload.id)).limit(1);
-    if (!user || user.status !== 'active') {
-      set.status = 401;
-      return { success: false, message: 'Unauthorized' };
-    }
-    return {
-      success: true,
-      data: { id: user.id, name: user.name, email: user.email, role: user.role, status: user.status },
-    };
+    return ok('', {
+      id: current.id,
+      name: current.name,
+      email: current.email,
+      role: current.role,
+      status: current.status,
+    });
   });

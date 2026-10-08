@@ -6,10 +6,13 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "test": "bun test test/",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/node": "^11.1.7",
     "@astrojs/react": "^4.2.1",
+    "@asya-pos/config": "workspace:*",
     "@tailwindcss/vite": "^4.1.14",
     "astro": "^7.3.6",
     "clsx": "^2.1.1",
@@ -18,5 +21,8 @@
     "react-dom": "^18.3.1",
     "tailwindcss": "^4.1.14",
     "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@asya-pos/db": "workspace:*"
   }
 }

@@ -1,23 +1,80 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { Button } from '@/components/ui/Button.tsx';
+
+const features = [
+  {
+    title: 'Kasir',
+    description: 'Membuat transaksi dan menghitung kembalian dengan cepat.',
+  },
+  {
+    title: 'Stok',
+    description: 'Pantau jumlah barang dan peringatan stok menipis.',
+  },
+  {
+    title: 'Laporan',
+    description: 'Lihat ringkasan penjualan dan aktivitas toko.',
+  },
+  {
+    title: 'Peran',
+    description: 'Admin, kasir, dan user dengan akses yang berbeda.',
+  },
+];
 ---
 
-<Layout title="Asya POS - POS Sederhana & Terpercaya">
-  <main class="min-h-screen flex flex-col items-center justify-center px-6 py-12 text-center">
-    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
-      Asya POS
-    </h1>
-    <p class="mt-4 text-lg text-gray-600 max-w-xl">
-      POS sederhana untuk operasional sehari-hari
-    </p>
-    <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
-      <a href="/auth/login">
-        <Button size="lg">Masuk</Button>
-      </a>
-      <a href="/auth/register">
-        <Button variant="secondary" size="lg">Daftar</Button>
-      </a>
+<Layout title="Asya POS - POS sederhana untuk toko Anda">
+  <section class="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
+    <div class="max-w-2xl">
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        Mencatat penjualan toko Anda tanpa ribet.
+      </h1>
+      <p class="mt-4 text-lg leading-relaxed text-gray-700">
+        Asya POS membantu mencatat transaksi, mengawasi stok, dan melihat laporan harian dalam satu aplikasi yang sederhana.
+      </p>
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <a href="/auth/register">
+          <Button size="lg">Daftar dan mulai pakai</Button>
+        </a>
+        <a href="/auth/login">
+          <Button size="lg" variant="secondary">Masuk</Button>
+        </a>
+      </div>
     </div>
-  </main>
+  </section>
+
+  <section class="border-t border-gray-200 bg-white" aria-labelledby="fitur-heading">
+    <div class="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
+      <h2 id="fitur-heading" class="text-xl font-semibold text-gray-900">
+        Yang dikerjakan Asya POS
+      </h2>
+      <ul class="mt-8 grid gap-x-10 gap-y-8 sm:grid-cols-2">
+        {features.map((item) => (
+          <li>
+            <h3 class="text-base font-semibold text-gray-900">{item.title}</h3>
+            <p class="mt-1 text-gray-700">{item.description}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="mulai-heading">
+    <div class="max-w-2xl">
+      <h2 id="mulai-heading" class="text-xl font-semibold text-gray-900">
+        Mulai dalam dua langkah
+      </h2>
+      <ol class="mt-6 list-decimal space-y-4 pl-5 text-gray-700">
+        <li>Daftar dengan nama dan email Anda.</li>
+        <li>Masuk, lalu gunakan menu sesuai peran Anda.</li>
+      </ol>
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <a href="/auth/register">
+          <Button size="lg">Daftar</Button>
+        </a>
+        <a href="/auth/login" class="inline-flex min-h-11 items-center rounded-md px-3 text-sm font-medium text-blue-700 hover:bg-gray-100 hover:text-blue-800">
+          Sudah punya akun, masuk
+        </a>
+      </div>
+    </div>
+  </section>
 </Layout>

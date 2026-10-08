@@ -3,41 +3,104 @@ import Layout from '@/layouts/Layout.astro';
 import { Button } from '@/components/ui/Button.tsx';
 ---
 
-<Layout title="Login - Asya POS">
-  <main class="min-h-screen flex items-center justify-center px-4 py-12">
-    <div class="w-full max-w-sm space-y-6">
-      <div class="text-center">
-        <h1 class="text-2xl font-bold">Masuk ke Asya POS</h1>
-        <p class="mt-2 text-sm text-gray-600">Kelola penjualan dengan mudah</p>
-      </div>
-      <form class="space-y-4" action="/api/auth/login" method="post">
-        <div class="space-y-2">
-          <label for="email" class="text-sm font-medium">Email</label>
+<Layout title="Masuk - Asya POS">
+  <main class="mx-auto flex w-full max-w-md flex-1 items-center px-4 py-12">
+    <div class="w-full">
+      <h1 class="text-2xl font-bold text-gray-900">Masuk</h1>
+      <p class="mt-1 text-gray-700">Kelola penjualan Anda dengan Asya POS.</p>
+
+      <div id="formError" class="alert-error mt-6 hidden" role="alert" hidden></div>
+
+      <form id="loginForm" class="mt-6 space-y-5" novalidate>
+        <div class="space-y-1.5">
+          <label for="email" class="field-label">Email</label>
           <input
             id="email"
             name="email"
             type="email"
             required
-            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+            autocomplete="email"
+            class="form-input"
             placeholder="nama@contoh.com"
           />
         </div>
-        <div class="space-y-2">
-          <label for="password" class="text-sm font-medium">Password</label>
+        <div class="space-y-1.5">
+          <label for="password" class="field-label">Password</label>
           <input
             id="password"
             name="password"
             type="password"
             required
-            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
-            placeholder="••••••••"
+            autocomplete="current-password"
+            class="form-input"
+            placeholder="Kata sandi Anda"
           />
         </div>
-        <Button type="submit" className="w-full">Masuk</Button>
+        <Button type="submit" id="submitBtn" className="w-full">Masuk</Button>
       </form>
-      <p class="text-center text-sm text-gray-600">
-        Belum punya akun? <a href="/auth/register" class="text-blue-600 hover:underline">Daftar</a>
+
+      <p class="mt-6 text-sm text-gray-700">
+        Belum punya akun?{' '}
+        <a href="/auth/register" class="font-medium text-blue-700 hover:underline">Daftar</a>
       </p>
     </div>
   </main>
 </Layout>
+
+<script>
+  const form = document.getElementById('loginForm') as HTMLFormElement;
+  const errorBox = document.getElementById('formError') as HTMLElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+  function showError(message: string) {
+    if (!message) return;
+    errorBox.textContent = message;
+    errorBox.hidden = false;
+    errorBox.classList.remove('hidden');
+  }
+
+  function clearError() {
+    errorBox.hidden = true;
+    errorBox.classList.add('hidden');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+
+    const data = new FormData(form);
+    const email = String(data.get('email') ?? '').trim();
+    const password = String(data.get('password') ?? '');
+
+    if (!email || !password) {
+      showError('Email dan password wajib diisi.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Memproses...';
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        credentials: 'same-origin',
+      });
+
+      const body = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        showError(body?.message || 'Terjadi kesalahan. Coba lagi.');
+        return;
+      }
+
+      window.location.href = '/';
+    } catch {
+      showError('Tidak dapat terhubung ke server. Periksa koneksi Anda dan coba lagi.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Masuk';
+    }
+  });
+</script>

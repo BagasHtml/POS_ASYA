@@ -13,7 +13,7 @@ Implemented initial monorepo scaffold for Asya POS (Astro + Elysia), packages (d
 - packages/config: env + rbac
 
 ## Env
-Template .env.example provided. DB credentials to be filled later by user.
+Template .env.example provided. Database is SQLite (bun:sqlite via @libsql client) at ./data/asya.db, with WAL mode, busy_timeout=5000, foreign_keys=ON.
 
 ## Build status
 - web build: OK
@@ -21,6 +21,6 @@ Template .env.example provided. DB credentials to be filled later by user.
 - api runtime: starts on :3000 (verified)
 
 ## Next steps (approved plan)
-- Setup DB (MariaDB) with .env, run drizzle generate/migrate + seed
+- Setup DB with .env, run drizzle generate/migrate + seed (drizzle push, SQLite)
 - Add admin/dashboard/cashier/admin CRUD, transactions (atomic checkout), reports/logs
 - CartIsland (React) for /cashier, UI components, verify R-35 + Delivery Gate

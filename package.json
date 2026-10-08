@@ -10,14 +10,15 @@
     "dev": "bun --filter=@asya-pos/web dev & bun --filter=@asya-pos/api dev",
     "dev:web": "bun --filter=@asya-pos/web dev",
     "dev:api": "bun --filter=@asya-pos/api dev",
-    "build": "bun --filter=@asya-pos/web build",
-    "build:api": "bun --filter=@asya-pos/api build",
+    "build": "bun run --cwd apps/web build",
+    "build:api": "bun run --cwd apps/api build",
     "preview": "bun --filter=@asya-pos/web preview",
     "db:generate": "bun --filter=@asya-pos/db run drizzle:generate",
     "db:push": "bun --filter=@asya-pos/db run drizzle:push",
     "db:migrate": "bun --filter=@asya-pos/db run drizzle:migrate",
     "db:studio": "bun --filter=@asya-pos/db run drizzle:studio",
-    "db:seed": "bun --filter=@asya-pos/db seed"
+    "db:seed": "bun --filter=@asya-pos/db seed",
+    "test": "bun run --cwd packages/db test && bun run --cwd apps/api test && bun run --cwd apps/web test"
   },
   "dependencies": {
     "dotenv": "^18.0.6"

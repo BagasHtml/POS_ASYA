@@ -4,8 +4,8 @@ export const userRoleSchema = z.enum(['admin', 'kasir', 'user']);
 export const userStatusSchema = z.enum(['active', 'inactive']);
 
 export const registerSchema = z.object({
-  name: z.string().min(1, 'Nama wajib diisi').max(100),
-  email: z.string().email('Email tidak valid').max(100),
+  name: z.string().min(1, 'Nama wajib diisi').max(100, 'Nama maksimal 100 karakter'),
+  email: z.string().email('Email tidak valid').max(100, 'Email maksimal 100 karakter'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
   role: userRoleSchema.optional(),
 });

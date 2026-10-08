@@ -19,7 +19,24 @@ import '@/styles/global.css';
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body>
-    <slot />
+  <body class="flex min-h-screen flex-col bg-gray-50 text-gray-900">
+    <header class="border-b border-gray-200 bg-white">
+      <nav class="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4 sm:px-6" aria-label="Utama">
+        <a href="/" class="text-lg font-semibold text-gray-900">Asya POS</a>
+        <div class="flex items-center gap-2">
+          <a href="/auth/login" class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">Masuk</a>
+          <a href="/auth/register" class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">Daftar</a>
+        </div>
+      </nav>
+    </header>
+    <main class="flex-1">
+      <slot />
+    </main>
+    <footer class="border-t border-gray-200 bg-white py-6">
+      <div class="mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-2 px-4 text-sm text-gray-500 sm:flex-row sm:px-6">
+        <span>Asya POS</span>
+        <a href="/auth/login" class="text-blue-700 hover:underline">Masuk</a>
+      </div>
+    </footer>
   </body>
 </html>
